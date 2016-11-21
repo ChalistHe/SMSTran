@@ -1,13 +1,16 @@
 package android.chalist.com.smstran;
 
+import android.app.ActivityManager;
+import android.chalist.com.smstran.services.FetchSMSService;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 public class SMSTran extends AppCompatActivity {
 
@@ -49,4 +52,19 @@ public class SMSTran extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void onSwitchService(View view) {
+
+    }
+
+    private boolean isFetchSMSServiceStart() {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (FetchSMSService.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
