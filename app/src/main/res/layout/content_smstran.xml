@@ -15,7 +15,7 @@
     tools:showIn="@layout/activity_smstran">
 
     <Button
-        android:id="@+id/startServiceBtn"
+        android:id="@+id/switchServiceBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="onSwitchService"/>

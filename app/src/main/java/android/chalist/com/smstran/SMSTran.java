@@ -11,9 +11,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 public class SMSTran extends AppCompatActivity {
 
+    private Button mSwitchServiceBtn;
+    private boolean mIsFetchSMSServiceStart = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,6 +32,12 @@ public class SMSTran extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        mSwitchServiceBtn = (Button) findViewById(R.id.switchServiceBtn);
+        if(isIsFetchSMSServiceStart()) {
+            mSwitchServiceBtn.setText(getResources().getString(R.string.stop_service_btn));
+        } else {
+            mSwitchServiceBtn.setText(getResources().getString(R.string.start_service_btn));
+        }
     }
 
     @Override
@@ -54,16 +63,22 @@ public class SMSTran extends AppCompatActivity {
     }
 
     public void onSwitchService(View view) {
-
+        if(mIsFetchSMSServiceStart) {
+            mSwitchServiceBtn.setText(getResources().getString(R.string.stop_service_btn));
+        } else {
+            mSwitchServiceBtn.setText(getResources().getString(R.string.start_service_btn));
+        }
     }
 
-    private boolean isFetchSMSServiceStart() {
+    private boolean isIsFetchSMSServiceStart() {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (FetchSMSService.class.getName().equals(service.service.getClassName())) {
+                mIsFetchSMSServiceStart = true;
                 return true;
             }
         }
+        mIsFetchSMSServiceStart = false;
         return false;
     }
 
