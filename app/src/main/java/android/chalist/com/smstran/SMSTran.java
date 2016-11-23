@@ -3,6 +3,7 @@ package android.chalist.com.smstran;
 import android.app.ActivityManager;
 import android.chalist.com.smstran.services.FetchSMSService;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 
 public class SMSTran extends AppCompatActivity {
+    private final static String TAG = "SMSTran";
 
     private Button mSwitchServiceBtn;
     private boolean mIsFetchSMSServiceStart = false;
@@ -33,7 +35,7 @@ public class SMSTran extends AppCompatActivity {
             }
         });
         mSwitchServiceBtn = (Button) findViewById(R.id.switchServiceBtn);
-        if(isIsFetchSMSServiceStart()) {
+        if(isFetchSMSServiceStart()) {
             mSwitchServiceBtn.setText(getResources().getString(R.string.stop_service_btn));
         } else {
             mSwitchServiceBtn.setText(getResources().getString(R.string.start_service_btn));
@@ -64,13 +66,18 @@ public class SMSTran extends AppCompatActivity {
 
     public void onSwitchService(View view) {
         if(mIsFetchSMSServiceStart) {
-            mSwitchServiceBtn.setText(getResources().getString(R.string.stop_service_btn));
-        } else {
+            mIsFetchSMSServiceStart = false;
+            stopService(new Intent(this, FetchSMSService.class));
             mSwitchServiceBtn.setText(getResources().getString(R.string.start_service_btn));
+
+        } else {
+            mIsFetchSMSServiceStart = true;
+            startService(new Intent(this, FetchSMSService.class));
+            mSwitchServiceBtn.setText(getResources().getString(R.string.stop_service_btn));
         }
     }
 
-    private boolean isIsFetchSMSServiceStart() {
+    private boolean isFetchSMSServiceStart() {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (FetchSMSService.class.getName().equals(service.service.getClassName())) {
