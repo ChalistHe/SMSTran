@@ -1,12 +1,13 @@
 package android.chalist.com.smstran.receiver;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
-import android.util.Log;
-import android.widget.Toast;
 
 public class SMSReceiveBroadcastReceiver extends BroadcastReceiver {
     private final static String TAG = "SMSReceiveBroadcastReceiver";
@@ -24,35 +25,31 @@ public class SMSReceiveBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        // Retrieves a map of extended data from the intent.
-        final Bundle bundle = intent.getExtras();
-        try {
-            if (bundle != null) {
-                final Object[] pdusObj = (Object[]) bundle.get("pdus");
+        Bundle extras = intent.getExtras();
 
-                for (int i = 0; i < pdusObj.length; i++) {
+        if (extras == null) {
+            return;
+        }
 
-                    SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdusObj[i]);
-                    String phoneNumber = currentMessage.getDisplayOriginatingAddress();
+        Object[] smsExtras = (Object[]) extras.get(SmsConstant.PDUS);
 
-                    String senderNum = phoneNumber;
-                    String message = currentMessage.getDisplayMessageBody();
+        ContentResolver contentResolver = context.getContentResolver();
+        Uri smsUri = Uri.parse(SmsConstant.SMS_URI);
 
-                    Log.i(TAG, "senderNum: "+ senderNum + "; message: " + message);
+        for (Object smsExtra : smsExtras) {
+            // SMSを取り出す
+            byte[] smsBytes = (byte[]) smsExtra;
+            SmsMessage smsMessage = SmsMessage.createFromPdu(smsBytes);
 
+            String body = smsMessage.getMessageBody();
+            String address = smsMessage.getOriginatingAddress();
 
-                    // Show Alert
-                    int duration = Toast.LENGTH_LONG;
-                    Toast toast = Toast.makeText(context,
-                            "senderNum: "+ senderNum + ", message: " + message, duration);
-                    toast.show();
+            // SMSのContentProviderに保存する
+            ContentValues values = new ContentValues();
+            values.put("address", address
+                    values.put("body", body);
 
-                    mMessageListener.onReceived(message);
-                } // end for loop
-            } // bundle is null
-
-        } catch (Exception e) {
-            Log.e(TAG, "Exception smsReceiver" +e);
+            Uri uri = contentResolver.insert(Uri.parse("content://sms/"), values);
         }
     }
 
